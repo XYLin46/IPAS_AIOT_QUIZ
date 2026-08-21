@@ -1,5 +1,7 @@
 # IPAS 物聯網應用工程師題庫｜AIOT 線上練習
 
+<p><a href="./index.html" style="font-size: 2.4em; font-weight: bold;">▶ 直接進入練習網頁</a></p>
+
 IPAS AIOT Quiz 是一個以繁體中文提供的物聯網應用工程師認證線上題庫，
 適合準備 IPAS 物聯網應用工程師檢定、複習 AIOT 基礎概念，以及進行考前模擬測驗。
 
