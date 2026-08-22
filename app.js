@@ -282,11 +282,11 @@ async function renderHome() {
 
           <div class="grid">
             <article class="card mode-card">
-              <h2>年度測驗</h2>
+              <h3>IPAS 歷屆年度測驗</h3>
 
               <p>
-                選擇 U1 或 U2，再指定年度與場次。
-                題目與選項都會隨機排列。
+                選擇物聯網應用工程師 U1 或 U2 科目，再指定年度與場次，
+                練習 IPAS 題庫中的歷屆試題。
               </p>
 
               <button class="primary" data-mode="year">
@@ -295,11 +295,11 @@ async function renderHome() {
             </article>
 
             <article class="card mode-card">
-              <h2>隨機測驗</h2>
+              <h3>AIOT 隨機題庫測驗</h3>
 
               <p>
-                優先抽選未做過的題目；
-                未做題不足時，再由已做題補足 50 題。
+                從物聯網應用工程師題庫優先抽選未做過的題目，
+                不足時再由已做題補足最多 50 題。
               </p>
 
               <button class="primary" data-mode="random">
@@ -308,11 +308,11 @@ async function renderHome() {
             </article>
 
             <article class="card mode-card">
-              <h2>錯題測驗</h2>
+              <h3>物聯網錯題複習</h3>
 
               <p>
-                從目前瀏覽器曾經答錯的題目中，
-                隨機抽選最多 20 題。
+                從目前瀏覽器的 IPAS 題庫錯題紀錄中，
+                隨機抽選最多 20 題進行複習。
               </p>
 
               <button class="primary" data-mode="wrong">
@@ -502,7 +502,7 @@ function renderModeSetup(mode) {
 function renderYearSetup() {
   app.innerHTML = `
     <section class="panel">
-      <h2>年度測驗設定</h2>
+      <h2>IPAS 歷屆年度測驗設定</h2>
 
       ${subjectSelectHtml()}
 
@@ -579,7 +579,7 @@ function renderYearSetup() {
 function renderRandomSetup() {
   app.innerHTML = `
     <section class="panel">
-      <h2>隨機測驗設定</h2>
+      <h2>AIOT 隨機題庫測驗設定</h2>
 
       ${subjectSelectHtml()}
 
@@ -621,7 +621,7 @@ function renderWrongSetup() {
 
   app.innerHTML = `
     <section class="panel">
-      <h2>錯題測驗設定</h2>
+      <h2>物聯網錯題複習測驗設定</h2>
 
       ${subjectSelectHtml()}
 

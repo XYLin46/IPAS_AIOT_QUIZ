@@ -9,7 +9,7 @@
   <meta name="author" content="IPAS AIOT Quiz">
   <meta name="robots" content="index,follow">
   
-  <!-- Canonical URL (建議替換為您的實際網址) -->
+  <!-- Canonical URL -->
   <link rel="canonical" href="https://xylin46.github.io/IPAS_AIOT_QUIZ/">
 
   <!-- Open Graph / Facebook -->
@@ -19,13 +19,15 @@
   <meta property="og:title" content="IPAS 物聯網應用工程師題庫｜AIOT 線上練習">
   <meta property="og:description" content="免費練習 IPAS 物聯網應用工程師與 AIOT 題庫，透過線上測驗掌握學習進度。">
   <meta property="og:site_name" content="IPAS AIOT Quiz">
-  <!-- <meta property="og:image" content="./icon/yzm_icon.png"> -->
+  <meta property="og:image" content="https://xylin46.github.io/IPAS_AIOT_QUIZ/icon/yzm_icon.png">
+  <meta property="og:image:alt" content="IPAS 物聯網應用工程師題庫線上練習">
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="IPAS 物聯網應用工程師題庫｜AIOT 線上練習">
   <meta name="twitter:description" content="免費練習 IPAS 物聯網應用工程師與 AIOT 題庫，透過線上測驗掌握學習進度。">
-  <!-- <meta name="twitter:image" content="./icon/yzm_icon.png"> -->
+  <meta name="twitter:image" content="https://xylin46.github.io/IPAS_AIOT_QUIZ/icon/yzm_icon.png">
+  <meta name="twitter:image:alt" content="IPAS 物聯網應用工程師題庫線上練習">
 
   <!-- JSON-LD 結構化資料 -->
   <script type="application/ld+json">
@@ -34,12 +36,7 @@
       "@type": "WebSite",
       "name": "IPAS 物聯網應用工程師題庫",
       "url": "https://xylin46.github.io/IPAS_AIOT_QUIZ/",
-      "description": "提供 IPAS 物聯網應用工程師與 AIOT 歷屆試題線上練習。",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://xylin46.github.io/IPAS_AIOT_QUIZ/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+      "description": "提供 IPAS 物聯網應用工程師與 AIOT 歷屆試題線上練習。"
     }
   </script>
   <script type="application/ld+json">
@@ -69,13 +66,21 @@
 <body>
   <header class="site-header">
     <div>
-      <h1>物聯網題庫練習</h1>
+      <h1>IPAS 物聯網應用工程師題庫練習</h1>
       <p>資料只儲存在目前瀏覽器，更換裝置會重新開始喔。</p>
     </div>
     <button id="reset-progress-btn" class="danger ghost">清除本機紀錄</button>
   </header>
 
-  <main id="app" class="container" aria-live="polite"></main>
+  <main id="app" class="container" aria-live="polite">
+    <section class="panel">
+      <h2>IPAS 物聯網應用工程師線上題庫</h2>
+      <p>
+        提供 AIOT 物聯網應用工程師歷屆試題與線上測驗練習，涵蓋物聯網基礎架構、系統與應用，協助準備 IPAS 檢定。
+      </p>
+      <p>請啟用 JavaScript 以開始年度測驗、隨機測驗與錯題複習。</p>
+    </section>
+  </main>
 
   <dialog id="cookie-dialog">
     <form method="dialog">
