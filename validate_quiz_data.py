@@ -1,4 +1,5 @@
 import json
+import re
 from collections import Counter, defaultdict
 from pathlib import Path
 
@@ -15,6 +16,12 @@ counts = Counter()
 u2_counts = Counter()
 samples = defaultdict(list)
 subject_totals = Counter()
+han = r"\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff"
+pdf_break_patterns = (
+    re.compile(rf"(?<=[{han}])\s+(?=[{han}])"),
+    re.compile(rf"(?<=[，。；：、？！）》」』】])\s+(?=[{han}])"),
+    re.compile(rf"(?<=[{han}])\s+(?=[，。；：、？！）》」』】])"),
+)
 
 for subject in ("U1", "U2"):
     files = sorted(root.glob(f"*-{subject}.json"))
@@ -34,6 +41,17 @@ for subject in ("U1", "U2"):
             assert "依題庫答案" not in explanation, (path, question["id"])
             assert all(str(option.get("text", "")).strip() for option in question["options"]), (path, question["id"])
             assert "optionExplanations" not in question, (path, question["id"])
+            source_texts = [question["question"], *(option["text"] for option in question["options"])]
+            assert not any(pattern.search(text) for pattern in pdf_break_patterns for text in source_texts), (
+                path,
+                question["id"],
+                "PDF line-wrap spacing",
+            )
+            assert not any(re.search(r"\s{2,}", text) for text in source_texts), (
+                path,
+                question["id"],
+                "repeated whitespace",
+            )
 
             if subject == "U1":
                 assert question.get("chapterId") in chapter_ids, (path, question["id"])

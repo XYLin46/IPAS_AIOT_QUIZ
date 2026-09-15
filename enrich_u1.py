@@ -202,7 +202,12 @@ def add_explanation(question):
 
 
 def enrich_question(question, chapter_by_id):
-    chapter_id = choose_chapter(question)
+    # Preserve reviewed classifications when regenerating explanations after
+    # mechanical text cleanup. Only classify questions that do not yet have a
+    # valid chapter id.
+    chapter_id = question.get("chapterId")
+    if chapter_id not in chapter_by_id:
+        chapter_id = choose_chapter(question)
     question["chapterId"] = chapter_id
     question["chapterName"] = chapter_by_id[chapter_id][0]
     add_explanation(question)
