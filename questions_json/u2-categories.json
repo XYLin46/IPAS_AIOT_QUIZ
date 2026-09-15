@@ -1,0 +1,31 @@
+{
+  "source": "https://collegeplus.itri.org.tw/course/1146#/",
+  "sourceTitle": "物聯網系統與應用－工研院產業學院雲端教室",
+  "subject": "U2",
+  "categories": [
+    {
+      "id": "U2-1",
+      "name": "系統元件與架構",
+      "description": "感測器、控制器、通訊模組、閘道器、電源、網路拓撲、系統分層與軟硬體整合",
+      "questionCount": 148
+    },
+    {
+      "id": "U2-2",
+      "name": "簡易系統故障問題判斷與排除",
+      "description": "連線、供電、感測、通訊與系統異常的觀察、診斷、測試、維護及排除",
+      "questionCount": 116
+    },
+    {
+      "id": "U2-3",
+      "name": "物聯網資安與隱私權問題",
+      "description": "身分與存取控制、加密、攻擊防護、弱點管理、個人資料與隱私保護",
+      "questionCount": 58
+    },
+    {
+      "id": "U2-4",
+      "name": "平台設計",
+      "description": "雲端與應用平台、資料庫、API、訊息服務、資料處理、視覺化、部署與擴充性",
+      "questionCount": 278
+    }
+  ]
+}

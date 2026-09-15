@@ -172,13 +172,11 @@ def main():
         path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
         changed += 1
 
-    # U2 receives review explanations only. It deliberately does not receive U1
-    # chapter fields, so the two subjects cannot be mixed by chapter practice.
+    # U2 receives review explanations only. Its own category fields are managed
+    # by classify_u2.py and must be preserved when this script is rerun.
     for path in sorted(QUESTION_DIR.glob("*-U2.json")):
         data = json.loads(path.read_text(encoding="utf-8"))
         for question in data.get("questions", []):
-            question.pop("chapterId", None)
-            question.pop("chapterName", None)
             add_explanation(question)
         data["subject"] = "U2"
         path.write_text(json.dumps(data, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

@@ -5,10 +5,14 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parent / "questions_json"
 catalog = json.loads((root / "u1-chapters.json").read_text(encoding="utf-8"))
+u2_catalog = json.loads((root / "u2-categories.json").read_text(encoding="utf-8"))
 chapter_ids = {chapter["id"] for chapter in catalog["chapters"]}
 catalog_counts = {chapter["id"]: chapter["questionCount"] for chapter in catalog["chapters"]}
+u2_category_ids = {category["id"] for category in u2_catalog["categories"]}
+u2_catalog_counts = {category["id"]: category["questionCount"] for category in u2_catalog["categories"]}
 
 counts = Counter()
+u2_counts = Counter()
 samples = defaultdict(list)
 subject_totals = Counter()
 
@@ -35,14 +39,19 @@ for subject in ("U1", "U2"):
                         f'{path.stem} Q{question["id"]}: {question["question"]}'
                     )
             else:
+                assert question.get("categoryId") in u2_category_ids, (path, question["id"])
+                assert question.get("categoryName"), (path, question["id"])
                 assert "chapterId" not in question and "chapterName" not in question, (path, question["id"])
+                u2_counts[question["categoryId"]] += 1
 
 assert subject_totals == {"U1": 600, "U2": 600}, subject_totals
 assert dict(counts) == {key: value for key, value in catalog_counts.items() if value}, (counts, catalog_counts)
+assert dict(u2_counts) == {key: value for key, value in u2_catalog_counts.items() if value}, (u2_counts, u2_catalog_counts)
 
 print("VALIDATION OK")
 print("subject totals:", dict(subject_totals))
 print("chapter counts:", dict(counts))
+print("U2 category counts:", dict(u2_counts))
 for chapter in catalog["chapters"]:
     if samples[chapter["id"]]:
         print(f'\n[{chapter["id"]} {chapter["name"]}]')
