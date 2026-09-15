@@ -133,7 +133,7 @@ def choose_concept(question):
 def add_explanation(question):
     concept_title, insight = choose_concept(question)
     correct_options = [option for option in question["options"] if option.get("isCorrect")]
-    correct_labels = "、".join(f'{option["id"]}. {option["text"]}' for option in correct_options)
+    correct_texts = "、".join(option["text"] for option in correct_options)
     asks_negative = any(marker in question["question"] for marker in NEGATIVE_MARKERS)
     stem_tip = (
         "題幹含否定語意，作答時要找出不符合該概念的選項；其餘敘述可能本身正確，但不是本題要選的答案。"
@@ -141,17 +141,10 @@ def add_explanation(question):
         else "作答時要把每個選項與該概念的定義、功能與適用條件逐一核對，不能只憑關鍵字相似就選擇。"
     )
     question["explanation"] = (
-        f"依題庫答案，正確選項為「{correct_labels}」。本題考查「{concept_title}」。{insight}"
+        f"依題庫答案，正確答案內容為「{correct_texts}」。本題考查「{concept_title}」。{insight}"
         f"{stem_tip}因此，應以正確選項所描述的條件或功能作為判斷基準。"
     )
-    question["optionExplanations"] = {
-        str(option["id"]): (
-            f"此選項符合本題答案與「{concept_title}」的判斷基準。{insight}"
-            if option.get("isCorrect")
-            else f"此選項不是本題答案。它與題目要求的關鍵條件不完全相符；請對照正確選項「{correct_labels}」，並分辨技術的功能、層級、適用範圍或限制。"
-        )
-        for option in question["options"]
-    }
+    question.pop("optionExplanations", None)
 
 
 def enrich_question(question, chapter_by_id):

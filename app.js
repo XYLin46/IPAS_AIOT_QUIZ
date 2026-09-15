@@ -1128,7 +1128,7 @@ function renderQuestion() {
       <div class="option-list">
         ${question.options
           .map(
-            (option) => `
+            (option, index) => `
               <label class="option">
                 <input
                   type="${inputType}"
@@ -1145,7 +1145,7 @@ function renderQuestion() {
 
                 <span>
                   <strong>
-                    ${escapeHtml(option.id)}.
+                    ${String.fromCharCode(65 + index)}.
                   </strong>
 
                   ${escapeHtml(option.text)}
@@ -1356,7 +1356,7 @@ function renderReview() {
 
                 <ul class="review-options">
                   ${question.options
-                    .map((option) => {
+                    .map((option, optionIndex) => {
                       const optionId = String(option.id);
 
                       const classes = [
@@ -1384,7 +1384,7 @@ function renderReview() {
 
                       return `
                         <li class="${classes}">
-                          <strong class="review-option-letter">${escapeHtml(optionId)}.</strong>
+                          <strong class="review-option-letter">${String.fromCharCode(65 + optionIndex)}.</strong>
                           ${escapeHtml(option.text)}
 
                           ${
@@ -1397,11 +1397,6 @@ function renderReview() {
                               : ""
                           }
 
-                          ${
-                            question.optionExplanations?.[optionId]
-                              ? `<p class="option-explanation">${escapeHtml(question.optionExplanations[optionId])}</p>`
-                              : ""
-                          }
                         </li>
                       `;
                     })

@@ -175,15 +175,6 @@ select {
 .review-option-letter { display: inline-block; min-width: 1.6rem; }
 .review-options .correct-answer { color: var(--ok); font-weight: 700; }
 .review-options .selected-wrong { color: var(--danger); text-decoration: line-through; }
-.option-explanation {
-  margin: .35rem 0 .75rem;
-  color: var(--muted);
-  font-size: .9rem;
-  font-weight: 400;
-  line-height: 1.6;
-  text-decoration: none;
-}
-
 .answer-explanation,
 .chapter-description {
   margin-top: 1rem;

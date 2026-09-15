@@ -24,9 +24,7 @@ for subject in ("U1", "U2"):
         for question in data["questions"]:
             subject_totals[subject] += 1
             assert len(question.get("explanation", "")) >= 80, (path, question["id"])
-            assert set(question.get("optionExplanations", {})) == {
-                str(option["id"]) for option in question["options"]
-            }, (path, question["id"])
+            assert "optionExplanations" not in question, (path, question["id"])
 
             if subject == "U1":
                 assert question.get("chapterId") in chapter_ids, (path, question["id"])
