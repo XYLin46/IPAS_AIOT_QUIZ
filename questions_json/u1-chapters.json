@@ -1,0 +1,60 @@
+{
+  "source": "AIoT應用工程師(初級)-學習指引-科目1_AIoT基礎概論.pdf",
+  "subject": "U1",
+  "chapters": [
+    {
+      "id": "3-1",
+      "name": "AI 基礎概念",
+      "description": "人工智慧、機器學習、深度學習、資料處理、模型訓練與評估",
+      "questionCount": 5
+    },
+    {
+      "id": "3-2",
+      "name": "AIoT 應用案例",
+      "description": "AI 與物聯網結合後的智慧製造、醫療、城市、交通、農業與生活應用",
+      "questionCount": 23
+    },
+    {
+      "id": "4-1",
+      "name": "物聯網架構與功能",
+      "description": "AIoT／IoT 定義、感知層、網路層、應用層、邊緣與雲端架構",
+      "questionCount": 79
+    },
+    {
+      "id": "4-2",
+      "name": "常見通訊協定與網路層技術",
+      "description": "TCP/IP、IPv4/IPv6、Wi-Fi、Bluetooth、ZigBee、LoRa、NB-IoT、MQTT 與 CoAP",
+      "questionCount": 149
+    },
+    {
+      "id": "4-3",
+      "name": "工業通訊標準與資訊模型",
+      "description": "RFID、EPCglobal、OPC UA、Modbus、工業乙太網路與資訊模型",
+      "questionCount": 107
+    },
+    {
+      "id": "4-4",
+      "name": "中介軟體與平台",
+      "description": "雲端服務、訊息代理、資料庫、API、中介軟體、裝置管理與平台服務",
+      "questionCount": 44
+    },
+    {
+      "id": "4-5",
+      "name": "資安與隱私基本概念",
+      "description": "身分驗證、授權、加密、金鑰、攻擊防護、隱私與風險管理",
+      "questionCount": 26
+    },
+    {
+      "id": "5-1",
+      "name": "感測技術基礎",
+      "description": "感測器原理、量測特性、各類物理量感測與感測器選用",
+      "questionCount": 109
+    },
+    {
+      "id": "5-2",
+      "name": "感測訊號與通訊基礎",
+      "description": "類比／數位訊號、取樣、轉換、濾波、放大、雜訊與感測訊號傳輸",
+      "questionCount": 58
+    }
+  ]
+}

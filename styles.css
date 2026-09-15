@@ -170,10 +170,56 @@ select {
 .review-item.correct { border-left-color: var(--ok); }
 .review-item.wrong { border-left-color: var(--danger); }
 .review-item h3 { margin-top: 0; }
-.review-options { margin: .6rem 0; padding-left: 1.2rem; }
+.review-options { margin: .6rem 0; padding-left: 0; list-style: none; }
 .review-options li { margin: .35rem 0; }
+.review-option-letter { display: inline-block; min-width: 1.6rem; }
 .review-options .correct-answer { color: var(--ok); font-weight: 700; }
 .review-options .selected-wrong { color: var(--danger); text-decoration: line-through; }
+.option-explanation {
+  margin: .35rem 0 .75rem;
+  color: var(--muted);
+  font-size: .9rem;
+  font-weight: 400;
+  line-height: 1.6;
+  text-decoration: none;
+}
+
+.answer-explanation,
+.chapter-description {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid color-mix(in srgb, var(--primary) 32%, var(--line));
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--primary) 7%, var(--panel));
+}
+
+.answer-explanation h4,
+.answer-explanation p,
+.chapter-description p {
+  margin: 0;
+}
+
+.answer-explanation h4 {
+  margin-bottom: .45rem;
+  color: var(--primary);
+}
+
+.chapter-label {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  color: var(--muted);
+  font-size: .9rem;
+}
+
+.chapter-label .badge,
+.chapter-mode-card > .badge {
+  margin-left: 0;
+}
+
+.chapter-mode-card {
+  border-color: color-mix(in srgb, var(--primary) 45%, var(--line));
+}
 
 .remove-box {
   margin-top: .8rem;

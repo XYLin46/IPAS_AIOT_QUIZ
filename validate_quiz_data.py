@@ -1,0 +1,51 @@
+import json
+from collections import Counter, defaultdict
+from pathlib import Path
+
+
+root = Path(__file__).resolve().parent / "questions_json"
+catalog = json.loads((root / "u1-chapters.json").read_text(encoding="utf-8"))
+chapter_ids = {chapter["id"] for chapter in catalog["chapters"]}
+catalog_counts = {chapter["id"]: chapter["questionCount"] for chapter in catalog["chapters"]}
+
+counts = Counter()
+samples = defaultdict(list)
+subject_totals = Counter()
+
+for subject in ("U1", "U2"):
+    files = sorted(root.glob(f"*-{subject}.json"))
+    assert len(files) == 12, (subject, len(files))
+
+    for path in files:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        assert data.get("subject") == subject, path
+        assert len(data["questions"]) == data["questionCount"] == 50, path
+
+        for question in data["questions"]:
+            subject_totals[subject] += 1
+            assert len(question.get("explanation", "")) >= 80, (path, question["id"])
+            assert set(question.get("optionExplanations", {})) == {
+                str(option["id"]) for option in question["options"]
+            }, (path, question["id"])
+
+            if subject == "U1":
+                assert question.get("chapterId") in chapter_ids, (path, question["id"])
+                assert question.get("chapterName"), (path, question["id"])
+                counts[question["chapterId"]] += 1
+                if len(samples[question["chapterId"]]) < 3:
+                    samples[question["chapterId"]].append(
+                        f'{path.stem} Q{question["id"]}: {question["question"]}'
+                    )
+            else:
+                assert "chapterId" not in question and "chapterName" not in question, (path, question["id"])
+
+assert subject_totals == {"U1": 600, "U2": 600}, subject_totals
+assert dict(counts) == {key: value for key, value in catalog_counts.items() if value}, (counts, catalog_counts)
+
+print("VALIDATION OK")
+print("subject totals:", dict(subject_totals))
+print("chapter counts:", dict(counts))
+for chapter in catalog["chapters"]:
+    if samples[chapter["id"]]:
+        print(f'\n[{chapter["id"]} {chapter["name"]}]')
+        print("\n".join(samples[chapter["id"]]))

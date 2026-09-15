@@ -2,6 +2,7 @@ const APP_VERSION = 1;
 const STORAGE_KEY = "iotQuizProgressV1";
 const CONSENT_COOKIE = "iotQuizConsent";
 const MANIFEST_URL = "./questions_json/manifest.json";
+const U1_CHAPTER_CATALOG_URL = "./questions_json/u1-chapters.json";
 
 const app = document.querySelector("#app");
 const resetButton = document.querySelector("#reset-progress-btn");
@@ -10,6 +11,7 @@ const cookieAcceptButton = document.querySelector("#cookie-accept-btn");
 
 let manifest = [];
 let currentQuiz = null;
+let u1ChapterCatalog = null;
 
 const questionFileCache = new Map();
 /* -------------------------------------------------------
@@ -202,6 +204,21 @@ async function loadManifest() {
   manifest = data.files;
 }
 
+async function loadU1ChapterCatalog() {
+  if (u1ChapterCatalog) {
+    return u1ChapterCatalog;
+  }
+
+  const data = await fetchJson(U1_CHAPTER_CATALOG_URL);
+
+  if (data.subject !== "U1" || !Array.isArray(data.chapters)) {
+    throw new Error("U1 章節目錄格式錯誤");
+  }
+
+  u1ChapterCatalog = data;
+  return data;
+}
+
 function parseFileInfo(file) {
   const match = file.match(/^(\d{3})-(1|2)-(U1|U2)\.json$/i);
 
@@ -304,6 +321,20 @@ async function renderHome() {
 
               <button class="primary" data-mode="random">
                 開始設定
+              </button>
+            </article>
+
+            <article class="card mode-card chapter-mode-card">
+              <span class="badge">僅 U1</span>
+              <h3>U1 依章節刷題</h3>
+
+              <p>
+                依「AIoT 基礎概論」學習指引的九個單元選題，
+                集中練習同一知識主題，不會混入 U2 題目。
+              </p>
+
+              <button class="primary" data-mode="chapter">
+                選擇章節
               </button>
             </article>
 
@@ -492,6 +523,11 @@ function renderModeSetup(mode) {
 
   if (mode === "wrong") {
     renderWrongSetup();
+    return;
+  }
+
+  if (mode === "chapter") {
+    renderChapterSetup();
   }
 }
 
@@ -606,6 +642,113 @@ function renderRandomSetup() {
     const subject = app.querySelector("#subject").value;
     await startRandomQuiz(subject);
   });
+}
+
+/* -------------------------------------------------------
+ * U1 章節刷題設定
+ * ----------------------------------------------------- */
+
+async function renderChapterSetup() {
+  app.innerHTML = `
+    <section class="panel">
+      <p>正在載入 U1 章節目錄……</p>
+    </section>
+  `;
+
+  try {
+    const catalog = await loadU1ChapterCatalog();
+    const availableChapters = catalog.chapters.filter(
+      (chapter) => chapter.questionCount > 0,
+    );
+
+    app.innerHTML = `
+      <section class="panel">
+        <div class="quiz-head">
+          <div>
+            <span class="badge">U1 專屬</span>
+            <h2>依學習指引章節刷題</h2>
+          </div>
+        </div>
+
+        <p class="note">
+          分類依據：AIoT 應用工程師（初級）學習指引－科目 1。
+          本模式只讀取檔名為 <code>*-U1.json</code> 的題庫。
+        </p>
+
+        <div class="field">
+          <label for="chapter">章節</label>
+          <select id="chapter">
+            ${availableChapters
+              .map(
+                (chapter) => `
+                  <option value="${escapeHtml(chapter.id)}">
+                    ${escapeHtml(chapter.id)} ${escapeHtml(chapter.name)}（${chapter.questionCount} 題）
+                  </option>
+                `,
+              )
+              .join("")}
+          </select>
+        </div>
+
+        <div id="chapter-description" class="chapter-description"></div>
+
+        <div class="field">
+          <label for="question-count">本次題數</label>
+          <select id="question-count">
+            <option value="10">10 題</option>
+            <option value="20" selected>20 題</option>
+            <option value="30">30 題</option>
+            <option value="50">50 題</option>
+          </select>
+        </div>
+
+        <p class="note">同一章節會優先抽選尚未做過的題目；不足時再由已做題補足。</p>
+
+        <div class="actions spread">
+          <button class="secondary" id="back">返回</button>
+          <button class="primary" id="start">開始章節刷題</button>
+        </div>
+      </section>
+    `;
+
+    const chapterSelect = app.querySelector("#chapter");
+    const description = app.querySelector("#chapter-description");
+
+    function refreshDescription() {
+      const chapter = availableChapters.find(
+        (item) => item.id === chapterSelect.value,
+      );
+
+      description.innerHTML = chapter
+        ? `<strong>${escapeHtml(chapter.name)}</strong><p>${escapeHtml(chapter.description)}</p>`
+        : "";
+    }
+
+    chapterSelect.addEventListener("change", refreshDescription);
+    refreshDescription();
+
+    app.querySelector("#back").addEventListener("click", renderHome);
+    app.querySelector("#start").addEventListener("click", async () => {
+      const chapter = availableChapters.find(
+        (item) => item.id === chapterSelect.value,
+      );
+      const count = Number(app.querySelector("#question-count").value);
+
+      if (chapter) {
+        await startChapterQuiz(chapter, count);
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    app.innerHTML = `
+      <section class="panel">
+        <h2 class="error">無法載入 U1 章節</h2>
+        <p>${escapeHtml(error.message)}</p>
+        <div class="actions"><button class="secondary" id="back">返回首頁</button></div>
+      </section>
+    `;
+    app.querySelector("#back").addEventListener("click", renderHome);
+  }
 }
 
 /* -------------------------------------------------------
@@ -785,6 +928,57 @@ async function startRandomQuiz(subject) {
   });
 }
 
+async function startChapterQuiz(chapter, requestedCount) {
+  await withLoading(async () => {
+    // Deliberately hard-coded to U1: chapter metadata belongs to subject 1 only.
+    const files = availableFiles("U1");
+    const groups = await Promise.all(
+      files.map((item) => loadQuestionFile(item.file)),
+    );
+    const pool = groups
+      .flat()
+      .filter((question) => question.chapterId === chapter.id);
+
+    if (!pool.length) {
+      throw new Error(`「${chapter.name}」目前沒有可用的 U1 題目`);
+    }
+
+    const progress = loadProgress();
+    const unattempted = [];
+    const attempted = [];
+
+    for (const question of pool) {
+      const key = questionKey(question.sourceFile, question.id);
+      if (progress.questions[key]?.attempted) {
+        attempted.push(question);
+      } else {
+        unattempted.push(question);
+      }
+    }
+
+    const targetCount = Math.min(requestedCount, pool.length);
+    const selected = shuffle(unattempted).slice(0, targetCount);
+
+    if (selected.length < targetCount) {
+      selected.push(
+        ...shuffle(attempted).slice(0, targetCount - selected.length),
+      );
+    }
+
+    currentQuiz = {
+      mode: "chapter",
+      subject: "U1",
+      chapterId: chapter.id,
+      chapterName: chapter.name,
+      title: `U1 ${chapter.id} ${chapter.name}`,
+      questions: prepareQuestions(selected),
+      currentIndex: 0,
+    };
+
+    renderQuestion();
+  });
+}
+
 async function startWrongQuiz(subject) {
   await withLoading(async () => {
     const progress = loadProgress();
@@ -916,6 +1110,12 @@ function renderQuestion() {
       </h2>
 
       ${
+        question.chapterId
+          ? `<p class="chapter-label"><span class="badge">${escapeHtml(question.chapterId)}</span> ${escapeHtml(question.chapterName)}</p>`
+          : ""
+      }
+
+      ${
         multiple
           ? `
             <p class="warning">
@@ -928,7 +1128,7 @@ function renderQuestion() {
       <div class="option-list">
         ${question.options
           .map(
-            (option, index) => `
+            (option) => `
               <label class="option">
                 <input
                   type="${inputType}"
@@ -945,7 +1145,7 @@ function renderQuestion() {
 
                 <span>
                   <strong>
-                    ${String.fromCharCode(65 + index)}.
+                    ${escapeHtml(option.id)}.
                   </strong>
 
                   ${escapeHtml(option.text)}
@@ -1154,7 +1354,7 @@ function renderReview() {
                   ${escapeHtml(question.question)}
                 </p>
 
-                <ol class="review-options" type="A">
+                <ul class="review-options">
                   ${question.options
                     .map((option) => {
                       const optionId = String(option.id);
@@ -1184,6 +1384,7 @@ function renderReview() {
 
                       return `
                         <li class="${classes}">
+                          <strong class="review-option-letter">${escapeHtml(optionId)}.</strong>
                           ${escapeHtml(option.text)}
 
                           ${
@@ -1195,11 +1396,30 @@ function renderReview() {
                               `
                               : ""
                           }
+
+                          ${
+                            question.optionExplanations?.[optionId]
+                              ? `<p class="option-explanation">${escapeHtml(question.optionExplanations[optionId])}</p>`
+                              : ""
+                          }
                         </li>
                       `;
                     })
                     .join("")}
-                </ol>
+                </ul>
+
+                <section class="answer-explanation" aria-label="本題詳解">
+                  <h4>詳解</h4>
+                  <p>${escapeHtml(
+                    question.explanation ||
+                      "本題目前尚無逐題詳解，請先依正確答案與選項標記複習。",
+                  )}</p>
+                  ${
+                    question.chapterId
+                      ? `<p class="chapter-label"><span class="badge">${escapeHtml(question.chapterId)}</span> ${escapeHtml(question.chapterName)}</p>`
+                      : ""
+                  }
+                </section>
 
                 ${
                   currentQuiz.mode === "wrong"
