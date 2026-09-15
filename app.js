@@ -14,6 +14,56 @@ let currentQuiz = null;
 let u1ChapterCatalog = null;
 
 const questionFileCache = new Map();
+
+function renderSeoOverview() {
+  return `
+    <section class="seo-overview" aria-labelledby="seo-overview-title">
+      <h2 id="seo-overview-title">iPAS AIoT 物聯網應用工程師免費題庫</h2>
+      <p>
+        本站收錄 108 至 114 年 iPAS 物聯網應用工程師歷屆試題，共整理
+        U1、U2 兩科各 600 題。可依年度、科目或章節練習，並在交卷後查看正確答案與詳解。
+      </p>
+
+      <div class="seo-grid">
+        <article>
+          <h3>U1 物聯網基礎架構概論</h3>
+          <p>
+            依《AIoT 應用工程師（初級）學習指引－科目 1》分類，涵蓋 AI 基礎、
+            AIoT 應用、物聯網架構、通訊協定、工業通訊、平台、資安與感測技術。
+          </p>
+          <ul>
+            <li>3-1 AI 基礎概念</li>
+            <li>3-2 AIoT 應用案例</li>
+            <li>4-1 物聯網架構與功能</li>
+            <li>4-2 常見通訊協定與網路層技術</li>
+            <li>4-3 工業通訊標準與資訊模型</li>
+            <li>4-4 中介軟體與平台</li>
+            <li>4-5 資安與隱私基本概念</li>
+            <li>5-1 感測技術基礎</li>
+            <li>5-2 感測訊號與通訊基礎</li>
+          </ul>
+        </article>
+
+        <article>
+          <h3>U2 物聯網系統與應用</h3>
+          <p>
+            練習物聯網系統整合、資料處理、應用服務與實務案例。U1 與 U2 題庫分開選擇，
+            不會在年度測驗或隨機測驗中混題。
+          </p>
+          <h3>歷屆試題與練習方式</h3>
+          <p>
+            題庫涵蓋 108、109、110、111、112、113 與 114 年度場次；年度測驗及隨機測驗
+            均可選擇 5、10、20 或 50 題，另提供錯題複習與瀏覽器學習進度紀錄。
+          </p>
+        </article>
+      </div>
+
+      <p class="seo-disclaimer">
+        本站為非官方免費練習工具，題目與認證資訊請以 iPAS 官方公告及正式學習資料為準。
+      </p>
+    </section>
+  `;
+}
 /* -------------------------------------------------------
  * Cookie 與 localStorage
  * ----------------------------------------------------- */
@@ -415,6 +465,8 @@ async function renderHome() {
 
         <!-- 每日簽到 -->
         ${renderPracticeCalendar()}
+
+        ${renderSeoOverview()}
 
       </section>
     `;
