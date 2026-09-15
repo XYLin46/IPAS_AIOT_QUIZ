@@ -3,6 +3,7 @@ const STORAGE_KEY = "iotQuizProgressV1";
 const CONSENT_COOKIE = "iotQuizConsent";
 const MANIFEST_URL = "./questions_json/manifest.json";
 const U1_CHAPTER_CATALOG_URL = "./questions_json/u1-chapters.json";
+const U2_CATEGORY_CATALOG_URL = "./questions_json/u2-categories.json";
 
 const app = document.querySelector("#app");
 const resetButton = document.querySelector("#reset-progress-btn");
@@ -12,6 +13,7 @@ const cookieAcceptButton = document.querySelector("#cookie-accept-btn");
 let manifest = [];
 let currentQuiz = null;
 let u1ChapterCatalog = null;
+let u2CategoryCatalog = null;
 
 const questionFileCache = new Map();
 
@@ -47,8 +49,8 @@ function renderSeoOverview() {
         <article>
           <h3>U2 物聯網系統與應用</h3>
           <p>
-            練習物聯網系統整合、資料處理、應用服務與實務案例。U1 與 U2 題庫分開選擇，
-            不會在年度測驗或隨機測驗中混題。
+            可依系統元件與架構、故障判斷與排除、物聯網資安與隱私權、平台設計
+            四類集中刷題。U1 與 U2 題庫分開選擇，不會混題。
           </p>
           <h3>歷屆試題與練習方式</h3>
           <p>
@@ -269,6 +271,21 @@ async function loadU1ChapterCatalog() {
   return data;
 }
 
+async function loadU2CategoryCatalog() {
+  if (u2CategoryCatalog) {
+    return u2CategoryCatalog;
+  }
+
+  const data = await fetchJson(U2_CATEGORY_CATALOG_URL);
+
+  if (data.subject !== "U2" || !Array.isArray(data.categories)) {
+    throw new Error("U2 分類目錄格式錯誤");
+  }
+
+  u2CategoryCatalog = data;
+  return data;
+}
+
 function parseFileInfo(file) {
   const match = file.match(/^(\d{3})-(1|2)-(U1|U2)\.json$/i);
 
@@ -385,6 +402,20 @@ async function renderHome() {
 
               <button class="primary" data-mode="chapter">
                 選擇章節
+              </button>
+            </article>
+
+            <article class="card mode-card chapter-mode-card">
+              <span class="badge">僅 U2</span>
+              <h3>U2 依分類刷題</h3>
+
+              <p>
+                依課程架構的四大主題集中練習，包含系統架構、
+                故障排除、資安與隱私及平台設計，不會混入 U1 題目。
+              </p>
+
+              <button class="primary" data-mode="category">
+                選擇分類
               </button>
             </article>
 
@@ -580,6 +611,11 @@ function renderModeSetup(mode) {
 
   if (mode === "chapter") {
     renderChapterSetup();
+    return;
+  }
+
+  if (mode === "category") {
+    renderCategorySetup();
   }
 }
 
@@ -831,6 +867,113 @@ async function renderChapterSetup() {
 }
 
 /* -------------------------------------------------------
+ * U2 分類刷題設定
+ * ----------------------------------------------------- */
+
+async function renderCategorySetup() {
+  app.innerHTML = `
+    <section class="panel">
+      <p>正在載入 U2 分類目錄……</p>
+    </section>
+  `;
+
+  try {
+    const catalog = await loadU2CategoryCatalog();
+    const availableCategories = catalog.categories.filter(
+      (category) => category.questionCount > 0,
+    );
+
+    app.innerHTML = `
+      <section class="panel">
+        <div class="quiz-head">
+          <div>
+            <span class="badge">U2 專屬</span>
+            <h2>依課程主題分類刷題</h2>
+          </div>
+        </div>
+
+        <p class="note">
+          分類依據：工研院「物聯網系統與應用」課程架構。
+          本模式只讀取檔名為 <code>*-U2.json</code> 的題庫。
+        </p>
+
+        <div class="field">
+          <label for="category">分類</label>
+          <select id="category">
+            ${availableCategories
+              .map(
+                (category) => `
+                  <option value="${escapeHtml(category.id)}">
+                    ${escapeHtml(category.name)}（${category.questionCount} 題）
+                  </option>
+                `,
+              )
+              .join("")}
+          </select>
+        </div>
+
+        <div id="category-description" class="chapter-description"></div>
+
+        <div class="field">
+          <label for="category-question-count">本次題數</label>
+          <select id="category-question-count">
+            <option value="5">5 題</option>
+            <option value="10">10 題</option>
+            <option value="20" selected>20 題</option>
+            <option value="50">50 題</option>
+          </select>
+        </div>
+
+        <p class="note">同一分類會優先抽選尚未做過的題目；不足時再由已做題補足。</p>
+
+        <div class="actions spread">
+          <button class="secondary" id="back">返回</button>
+          <button class="primary" id="start">開始分類刷題</button>
+        </div>
+      </section>
+    `;
+
+    const categorySelect = app.querySelector("#category");
+    const description = app.querySelector("#category-description");
+
+    function refreshDescription() {
+      const category = availableCategories.find(
+        (item) => item.id === categorySelect.value,
+      );
+
+      description.innerHTML = category
+        ? `<strong>${escapeHtml(category.name)}</strong><p>${escapeHtml(category.description)}</p>`
+        : "";
+    }
+
+    categorySelect.addEventListener("change", refreshDescription);
+    refreshDescription();
+
+    app.querySelector("#back").addEventListener("click", renderHome);
+    app.querySelector("#start").addEventListener("click", async () => {
+      const category = availableCategories.find(
+        (item) => item.id === categorySelect.value,
+      );
+      const count = Number(app.querySelector("#category-question-count").value);
+
+      if (category) {
+        await startCategoryQuiz(category, count);
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    app.innerHTML = `
+      <section class="panel">
+        <h2 class="error">無法載入 U2 分類</h2>
+        <p>${escapeHtml(error.message)}</p>
+        <div class="actions"><button class="secondary" id="back">返回首頁</button></div>
+      </section>
+    `;
+    app.querySelector("#back").addEventListener("click", renderHome);
+  }
+}
+
+/* -------------------------------------------------------
  * 錯題測驗設定
  * ----------------------------------------------------- */
 
@@ -1061,6 +1204,56 @@ async function startChapterQuiz(chapter, requestedCount) {
   });
 }
 
+async function startCategoryQuiz(category, requestedCount) {
+  await withLoading(async () => {
+    const files = availableFiles("U2");
+    const groups = await Promise.all(
+      files.map((item) => loadQuestionFile(item.file)),
+    );
+    const pool = groups
+      .flat()
+      .filter((question) => question.categoryId === category.id);
+
+    if (!pool.length) {
+      throw new Error(`「${category.name}」目前沒有可用的 U2 題目`);
+    }
+
+    const progress = loadProgress();
+    const unattempted = [];
+    const attempted = [];
+
+    for (const question of pool) {
+      const key = questionKey(question.sourceFile, question.id);
+      if (progress.questions[key]?.attempted) {
+        attempted.push(question);
+      } else {
+        unattempted.push(question);
+      }
+    }
+
+    const targetCount = Math.min(requestedCount, pool.length);
+    const selected = shuffle(unattempted).slice(0, targetCount);
+
+    if (selected.length < targetCount) {
+      selected.push(
+        ...shuffle(attempted).slice(0, targetCount - selected.length),
+      );
+    }
+
+    currentQuiz = {
+      mode: "category",
+      subject: "U2",
+      categoryId: category.id,
+      categoryName: category.name,
+      title: `U2 ${category.name}`,
+      questions: prepareQuestions(selected),
+      currentIndex: 0,
+    };
+
+    renderQuestion();
+  });
+}
+
 async function startWrongQuiz(subject) {
   await withLoading(async () => {
     const progress = loadProgress();
@@ -1194,6 +1387,8 @@ function renderQuestion() {
       ${
         question.chapterId
           ? `<p class="chapter-label"><span class="badge">${escapeHtml(question.chapterId)}</span> ${escapeHtml(question.chapterName)}</p>`
+          : question.categoryId
+            ? `<p class="chapter-label"><span class="badge">${escapeHtml(question.categoryId)}</span> ${escapeHtml(question.categoryName)}</p>`
           : ""
       }
 
@@ -1494,6 +1689,8 @@ function renderReview() {
                   ${
                     question.chapterId
                       ? `<p class="chapter-label"><span class="badge">${escapeHtml(question.chapterId)}</span> ${escapeHtml(question.chapterName)}</p>`
+                      : question.categoryId
+                        ? `<p class="chapter-label"><span class="badge">${escapeHtml(question.categoryId)}</span> ${escapeHtml(question.categoryName)}</p>`
                       : ""
                   }
                 </section>

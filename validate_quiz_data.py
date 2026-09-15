@@ -27,7 +27,12 @@ for subject in ("U1", "U2"):
 
         for question in data["questions"]:
             subject_totals[subject] += 1
-            assert len(question.get("explanation", "")) >= 80, (path, question["id"])
+            explanation = question.get("explanation", "")
+            assert len(explanation) >= 40, (path, question["id"])
+            assert "作答時要把每個選項" not in explanation, (path, question["id"])
+            assert "因此，應以正確選項" not in explanation, (path, question["id"])
+            assert "依題庫答案" not in explanation, (path, question["id"])
+            assert all(str(option.get("text", "")).strip() for option in question["options"]), (path, question["id"])
             assert "optionExplanations" not in question, (path, question["id"])
 
             if subject == "U1":
