@@ -547,8 +547,18 @@ function renderYearSetup() {
         <select id="exam-file"></select>
       </div>
 
+      <div class="field">
+        <label for="year-question-count">本次題數</label>
+        <select id="year-question-count">
+          <option value="5">5 題</option>
+          <option value="10">10 題</option>
+          <option value="20">20 題</option>
+          <option value="50" selected>50 題（完整試題）</option>
+        </select>
+      </div>
+
       <p class="note">
-        每份題庫會完整載入，題目與選項順序都會重新打亂。
+        系統會從所選年度隨機抽取指定題數，題目與選項順序都會重新打亂。
       </p>
 
       <div class="actions spread">
@@ -565,6 +575,7 @@ function renderYearSetup() {
 
   const subjectSelect = app.querySelector("#subject");
   const fileSelect = app.querySelector("#exam-file");
+  const questionCountSelect = app.querySelector("#year-question-count");
   const startButton = app.querySelector("#start");
 
   function refreshFiles() {
@@ -604,7 +615,10 @@ function renderYearSetup() {
       return;
     }
 
-    await startYearQuiz(fileSelect.value);
+    await startYearQuiz(
+      fileSelect.value,
+      Number(questionCountSelect.value),
+    );
   });
 }
 
@@ -846,7 +860,7 @@ function prepareQuestions(questions) {
   }));
 }
 
-async function startYearQuiz(file) {
+async function startYearQuiz(file, requestedCount = 50) {
   await withLoading(async () => {
     const questions = await loadQuestionFile(file);
 
@@ -854,10 +868,13 @@ async function startYearQuiz(file) {
       throw new Error(`${file} 沒有題目`);
     }
 
+    const targetCount = Math.min(requestedCount, questions.length);
+    const selected = shuffle(questions).slice(0, targetCount);
+
     currentQuiz = {
       mode: "year",
-      title: `${file.replace(".json", "")} 年度測驗`,
-      questions: prepareQuestions(questions),
+      title: `${file.replace(".json", "")} 年度測驗（${targetCount} 題）`,
+      questions: prepareQuestions(selected),
       currentIndex: 0,
     };
 
