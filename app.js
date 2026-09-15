@@ -1479,32 +1479,13 @@ function renderQuestion() {
   });
 
   app.querySelector("#next").addEventListener("click", () => {
-    if (!question.selectedOptionIds.length) {
-      app.querySelector("#validation").textContent =
-        "請先選擇答案。";
-
-      return;
-    }
-
     if (number === total) {
-      const unanswered = quiz.questions.filter(
-        (item) => !item.selectedOptionIds.length,
-      );
-
-      if (unanswered.length) {
-        app.querySelector("#validation").textContent =
-          `仍有 ${unanswered.length} 題尚未作答，請返回完成。`;
-
-        return;
-      }
-
       finishQuiz();
       return;
     }
 
     quiz.currentIndex += 1;
     renderQuestion();
-    recordDailyPractice();
   });
 }
 
@@ -1514,6 +1495,16 @@ function renderQuestion() {
 
 function finishQuiz() {
   const results = currentQuiz.questions.map((question) => {
+    const isAnswered = question.selectedOptionIds.length > 0;
+
+    if (!isAnswered) {
+      return {
+        question,
+        isAnswered: false,
+        isCorrect: null,
+      };
+    }
+
     const isCorrect = selectedIsCorrect(question);
 
     updateProgress(
@@ -1524,12 +1515,15 @@ function finishQuiz() {
 
     return {
       question,
+      isAnswered: true,
       isCorrect,
     };
   });
 
-// 完成一次測驗後，留下當日簽到紀錄
-  recordDailyPractice();
+  // 至少實際回答一題才留下當日練習紀錄；未答題不寫入任何進度。
+  if (results.some((result) => result.isAnswered)) {
+    recordDailyPractice();
+  }
 
   currentQuiz.results = results;
   renderReview();
@@ -1565,13 +1559,18 @@ function renderReview() {
   const results = currentQuiz.results;
 
   const correctCount = results.filter(
-    (result) => result.isCorrect,
+    (result) => result.isAnswered && result.isCorrect,
   ).length;
 
-  const wrongCount = results.length - correctCount;
+  const wrongCount = results.filter(
+    (result) => result.isAnswered && !result.isCorrect,
+  ).length;
 
-  const percentage = results.length
-    ? Math.round((correctCount / results.length) * 100)
+  const answeredCount = correctCount + wrongCount;
+  const unansweredCount = results.length - answeredCount;
+
+  const percentage = answeredCount
+    ? Math.round((correctCount / answeredCount) * 100)
     : 0;
 
   app.innerHTML = `
@@ -1597,6 +1596,11 @@ function renderReview() {
 
       <p class="note">
         ${
+          unansweredCount
+            ? `另有 ${unansweredCount} 題未作答，不計分且未寫入已做、答對或錯題紀錄。`
+            : ""
+        }
+        ${
           currentQuiz.mode === "wrong"
             ? `
               可在每題下方勾選要從本機錯題庫移除的題目，
@@ -1612,19 +1616,27 @@ function renderReview() {
         ${results
           .map((result, index) => {
             const question = result.question;
+            const resultClass = !result.isAnswered
+              ? "unanswered"
+              : result.isCorrect
+                ? "correct"
+                : "wrong";
+            const resultLabel = !result.isAnswered
+              ? "未作答"
+              : result.isCorrect
+                ? "答對"
+                : "答錯";
             const selected = new Set(
               question.selectedOptionIds.map(String),
             );
 
             return `
               <article
-                class="card review-item ${
-                  result.isCorrect ? "correct" : "wrong"
-                }"
+                class="card review-item ${resultClass}"
               >
                 <h3>
                   第 ${index + 1} 題：
-                  ${result.isCorrect ? "答對" : "答錯"}
+                  ${resultLabel}
                 </h3>
 
                 <p>
@@ -1696,7 +1708,7 @@ function renderReview() {
                 </section>
 
                 ${
-                  currentQuiz.mode === "wrong"
+                  currentQuiz.mode === "wrong" && result.isAnswered
                     ? `
                       <div class="remove-box">
                         <label>
