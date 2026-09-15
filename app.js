@@ -633,9 +633,19 @@ function renderRandomSetup() {
 
       ${subjectSelectHtml()}
 
+      <div class="field">
+        <label for="random-question-count">本次題數</label>
+        <select id="random-question-count">
+          <option value="5">5 題</option>
+          <option value="10">10 題</option>
+          <option value="20">20 題</option>
+          <option value="50" selected>50 題</option>
+        </select>
+      </div>
+
       <p class="note">
         系統會從該科目所有題庫中合併後，
-        隨機抽選最多 50 題。
+        優先隨機抽選未做過的題目，不足時再由已做題補足。
       </p>
 
       <div class="actions spread">
@@ -654,7 +664,10 @@ function renderRandomSetup() {
 
   app.querySelector("#start").addEventListener("click", async () => {
     const subject = app.querySelector("#subject").value;
-    await startRandomQuiz(subject);
+    const requestedCount = Number(
+      app.querySelector("#random-question-count").value,
+    );
+    await startRandomQuiz(subject, requestedCount);
   });
 }
 
@@ -882,7 +895,7 @@ async function startYearQuiz(file, requestedCount = 50) {
   });
 }
 
-async function startRandomQuiz(subject) {
+async function startRandomQuiz(subject, requestedCount = 50) {
   await withLoading(async () => {
     const files = availableFiles(subject);
 
@@ -920,7 +933,7 @@ async function startRandomQuiz(subject) {
       }
     }
 
-    const targetCount = Math.min(50, pool.length);
+    const targetCount = Math.min(requestedCount, pool.length);
 
     // 優先未做題目
     const selected = shuffle(unattempted).slice(0, targetCount);
@@ -936,7 +949,7 @@ async function startRandomQuiz(subject) {
 
     currentQuiz = {
       mode: "random",
-      title: `${subject} 隨機測驗`,
+      title: `${subject} 隨機測驗（${targetCount} 題）`,
       questions: prepareQuestions(selected),
       currentIndex: 0,
     };
