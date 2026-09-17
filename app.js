@@ -234,6 +234,26 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function renderQuestionImage(question) {
+  const image = question?.image;
+  const dataUrl = String(image?.dataUrl ?? "");
+
+  if (!/^data:image\/(?:png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(dataUrl)) {
+    return "";
+  }
+
+  return `
+    <figure class="question-image">
+      <img
+        src="${escapeHtml(dataUrl)}"
+        alt="${escapeHtml(image.alt || "題目附圖")}"
+        loading="lazy"
+        decoding="async"
+      >
+    </figure>
+  `;
+}
+
 async function fetchJson(url) {
   const response = await fetch(url, {
     cache: "no-store",
@@ -1384,6 +1404,8 @@ function renderQuestion() {
         ${escapeHtml(question.question)}
       </h2>
 
+      ${renderQuestionImage(question)}
+
       ${
         question.chapterId
           ? `<p class="chapter-label"><span class="badge">${escapeHtml(question.chapterId)}</span> ${escapeHtml(question.chapterName)}</p>`
@@ -1642,6 +1664,8 @@ function renderReview() {
                 <p>
                   ${escapeHtml(question.question)}
                 </p>
+
+                ${renderQuestionImage(question)}
 
                 <ul class="review-options">
                   ${question.options

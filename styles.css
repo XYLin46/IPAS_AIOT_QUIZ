@@ -170,6 +170,24 @@ select {
   line-height: 1.65;
   margin: 0 0 1rem;
 }
+.question-image {
+  display: flex;
+  justify-content: center;
+  margin: 0 0 1rem;
+  padding: .75rem;
+  overflow: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+.question-image img {
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
+  max-height: 34rem;
+  object-fit: contain;
+}
 .option-list { display: grid; gap: .75rem; }
 .option {
   display: flex;
