@@ -14,6 +14,11 @@ let manifest = [];
 let currentQuiz = null;
 let u1ChapterCatalog = null;
 let u2CategoryCatalog = null;
+let calendarViewDate = new Date(
+  new Date().getFullYear(),
+  new Date().getMonth(),
+  1,
+);
 
 const questionFileCache = new Map();
 
@@ -384,8 +389,9 @@ async function renderHome() {
         <section class="dashboard-section dashboard-section-first">
           <h2>選擇練習模式</h2>
 
-          <div class="grid">
-            <article class="card mode-card">
+          <div class="mode-rows">
+            <div class="mode-row" aria-label="綜合測驗">
+              <article class="card mode-card">
               <h3>IPAS 歷屆年度測驗</h3>
 
               <p>
@@ -396,9 +402,9 @@ async function renderHome() {
               <button class="primary" data-mode="year">
                 開始設定
               </button>
-            </article>
+              </article>
 
-            <article class="card mode-card">
+              <article class="card mode-card">
               <h3>AIOT 隨機題庫測驗</h3>
 
               <p>
@@ -409,9 +415,11 @@ async function renderHome() {
               <button class="primary" data-mode="random">
                 開始設定
               </button>
-            </article>
+              </article>
+            </div>
 
-            <article class="card mode-card chapter-mode-card">
+            <div class="mode-row" aria-label="分類刷題">
+              <article class="card mode-card chapter-mode-card">
               <span class="badge">僅 U1</span>
               <h3>U1 依章節刷題</h3>
 
@@ -423,9 +431,9 @@ async function renderHome() {
               <button class="primary" data-mode="chapter">
                 選擇章節
               </button>
-            </article>
+              </article>
 
-            <article class="card mode-card chapter-mode-card">
+              <article class="card mode-card chapter-mode-card">
               <span class="badge">僅 U2</span>
               <h3>U2 依分類刷題</h3>
 
@@ -437,20 +445,23 @@ async function renderHome() {
               <button class="primary" data-mode="category">
                 選擇分類
               </button>
-            </article>
+              </article>
+            </div>
 
-            <article class="card mode-card">
-              <h3>物聯網錯題複習</h3>
+            <div class="mode-row mode-row-single" aria-label="錯題複習">
+              <article class="card mode-card">
+                <h3>物聯網錯題複習</h3>
 
-              <p>
-                從目前瀏覽器的 IPAS 題庫錯題紀錄中，
-                隨機抽選最多 20 題進行複習。
-              </p>
+                <p>
+                  從目前瀏覽器的 IPAS 題庫錯題紀錄中，
+                  隨機抽選最多 20 題進行複習。
+                </p>
 
-              <button class="primary" data-mode="wrong">
-                開始設定
-              </button>
-            </article>
+                <button class="primary" data-mode="wrong">
+                  開始設定
+                </button>
+              </article>
+            </div>
           </div>
         </section>
 
@@ -528,6 +539,8 @@ async function renderHome() {
         renderModeSetup(button.dataset.mode);
       });
     });
+
+    bindPracticeCalendarNavigation();
   } catch (error) {
     console.error("首頁載入失敗：", error);
 
@@ -1969,9 +1982,9 @@ function buildCalendarData(date = new Date()) {
   };
 }
 
-function renderPracticeCalendar() {
+function renderPracticeCalendar(date = calendarViewDate) {
   const progress = loadProgress();
-  const calendar = buildCalendarData();
+  const calendar = buildCalendarData(date);
 
   const monthLabel =
     `${calendar.year} 年 ${calendar.month + 1} 月`;
@@ -2034,14 +2047,34 @@ function renderPracticeCalendar() {
   }
 
   return `
-    <section class="dashboard-section">
+    <section class="dashboard-section" id="practice-calendar-section">
       <h2>每日練習簽到</h2>
       <p class="note">
         完成一次測驗並送出答案後，當天會留下簽到戳記。
       </p>
 
       <div class="calendar">
-        <h3>${monthLabel}</h3>
+        <div class="calendar-toolbar">
+          <button
+            class="secondary calendar-nav"
+            type="button"
+            data-calendar-shift="-1"
+            aria-label="查看上個月"
+          >
+            ← 上個月
+          </button>
+
+          <h3 aria-live="polite">${monthLabel}</h3>
+
+          <button
+            class="secondary calendar-nav"
+            type="button"
+            data-calendar-shift="1"
+            aria-label="查看下個月"
+          >
+            下個月 →
+          </button>
+        </div>
 
         <div class="calendar-weekdays">
           ${weekdayLabels
@@ -2055,6 +2088,33 @@ function renderPracticeCalendar() {
       </div>
     </section>
   `;
+}
+
+function bindPracticeCalendarNavigation() {
+  app.querySelectorAll("[data-calendar-shift]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const monthShift = Number(button.dataset.calendarShift);
+
+      calendarViewDate = new Date(
+        calendarViewDate.getFullYear(),
+        calendarViewDate.getMonth() + monthShift,
+        1,
+      );
+
+      const calendarSection = app.querySelector(
+        "#practice-calendar-section",
+      );
+
+      if (!calendarSection) {
+        return;
+      }
+
+      calendarSection.outerHTML = renderPracticeCalendar(
+        calendarViewDate,
+      );
+      bindPracticeCalendarNavigation();
+    });
+  });
 }
 
 

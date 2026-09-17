@@ -95,8 +95,33 @@ button { cursor: pointer; }
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
+
+.mode-rows {
+  display: grid;
+  gap: 1rem;
+}
+
+.mode-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.mode-row-single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.mode-row .mode-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.mode-row .mode-card button {
+  margin-top: auto;
+}
+
 @media (max-width: 760px) {
-  .grid, .seo-grid { grid-template-columns: 1fr; }
+  .grid, .seo-grid, .mode-row { grid-template-columns: 1fr; }
   .site-header { align-items: flex-start; flex-direction: column; }
 }
 
@@ -346,9 +371,21 @@ dialog::backdrop { background: rgb(0 0 0 / 50%); }
   background: var(--panel);
 }
 
-.calendar h3 {
-  margin: 0 0 1rem;
+.calendar-toolbar {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.calendar-toolbar h3 {
+  margin: 0;
   text-align: center;
+}
+
+.calendar-nav {
+  white-space: nowrap;
 }
 
 .calendar-weekdays,
@@ -440,6 +477,15 @@ dialog::backdrop { background: rgb(0 0 0 / 50%); }
 
   .calendar {
     padding: 0.55rem;
+  }
+
+  .calendar-toolbar {
+    gap: 0.35rem;
+  }
+
+  .calendar-nav {
+    padding-inline: 0.55rem;
+    font-size: 0.8rem;
   }
 
   .calendar-cell {
