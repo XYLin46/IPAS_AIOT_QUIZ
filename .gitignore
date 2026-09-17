@@ -1,2 +1,12 @@
 __pycache__/
 *.py[cod]
+
+# Local data-processing and PDF-generation tools
+*.py
+data_audits/
+source_assets/
+output/
+tmp/
+
+# Local project notes
+README.md
