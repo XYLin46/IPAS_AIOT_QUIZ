@@ -430,7 +430,7 @@
         {
           "id": "A",
           "text": "外接I2C 的PWM 驅動晶片",
-          "isCorrect": true
+          "isCorrect": false
         },
         {
           "id": "B",
@@ -445,11 +445,11 @@
         {
           "id": "D",
           "text": "使用for 迴圈計算PWM 訊號變換時間",
-          "isCorrect": false
+          "isCorrect": true
         }
       ],
       "correctAnswerCount": 1,
-      "explanation": "答案是「外接I2C 的PWM 驅動晶片」。I2C 是使用 SDA 資料線與 SCL 時脈線的同步匯流排，可用位址連接多個裝置；兩條線通常為開漏輸出，因此都需要上拉電阻接至 VCC。",
+      "explanation": "答案是「使用for迴圈計算PWM訊號變換時間」。伺服馬達需要穩定且精確的脈衝寬度。外接I2C PWM驅動晶片、硬體計時器中斷及硬體PWM皆以硬體時基產生訊號，精度與穩定性較高；使用for迴圈進行軟體忙等時，延遲會受處理器時脈、編譯器最佳化、其他程式與中斷影響，因此四種方式中較不準確。",
       "categoryId": "U2-2",
       "categoryName": "簡易系統故障問題判斷與排除"
     },

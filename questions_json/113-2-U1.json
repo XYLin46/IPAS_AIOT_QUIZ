@@ -640,17 +640,17 @@
         {
           "id": "A",
           "text": "MQTT（Message Queuing Telemetry Transport）",
-          "isCorrect": false
+          "isCorrect": true
         },
         {
           "id": "B",
           "text": "AMQP（Advanced Message Queuing Protocol）",
-          "isCorrect": false
+          "isCorrect": true
         },
         {
           "id": "C",
           "text": "CoAP（Constrained Application Protocol）",
-          "isCorrect": false
+          "isCorrect": true
         },
         {
           "id": "D",
@@ -658,10 +658,10 @@
           "isCorrect": true
         }
       ],
-      "correctAnswerCount": 1,
+      "correctAnswerCount": 4,
       "chapterId": "4-2",
       "chapterName": "常見通訊協定與網路層技術",
-      "explanation": "答案是「XMPP（Extensible Messaging and Presence Protocol）」。SPI 以時脈同步傳輸，常用 SCLK、MOSI、MISO 與晶片選擇線，通常可全雙工且沒有內建確認交握；記憶卡與顯示器都是常見周邊。"
+      "explanation": "本題依官方疑義題釋覆，A、B、C、D皆給分，原因是題目的分類方式無法形成唯一答案。MQTT是典型發布／訂閱協定；AMQP可透過交換器與佇列實現發布／訂閱；CoAP核心採請求／回應，但Observe機制可提供類似訂閱通知；XMPP也可透過發布／訂閱擴充支援此模式。由於各協定可能同時支援多種互動模式，不能只依題目文字選出唯一一項。"
     },
     {
       "id": 23,
